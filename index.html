@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-ot//Saadnn1F8CSnLKTdXUGDeTIT1xS9IBMyLuBqxQI='; style-src 'unsafe-inline'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PmGmaUJeR6Gbi+MGjntpPP/Q2ivas9fcq+zg/gvvVL4='; style-src 'unsafe-inline'; connect-src https://ntfy.sh">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <title>Open Messages</title>
@@ -24,11 +24,18 @@
   var params = new URLSearchParams(location.hash.slice(1));
   var number = params.get('n') || '';
   var body = (params.get('b') || '').slice(0, 600);
+  var lead = params.get('i') || '';
+  var topic = params.get('t') || '';
   // Clear the number and message from the address bar and history.
   history.replaceState(null, '', location.pathname);
   if (!/^[2-9]\d{2}[2-9]\d{6}$/.test(number) || !body) {
     status.textContent = 'This link is not valid.';
     return;
+  }
+  // Report "button tapped" for this lead ID. Only the ID is sent, never the number or message.
+  // The host is fixed here and in the page's connect-src; a failure changes nothing below.
+  if (/^L-\d{8}-\d{2}$/.test(lead) && /^[A-Za-z0-9_-]{20,64}$/.test(topic)) {
+    try { fetch('https://ntfy.sh/' + topic, { method: 'POST', body: lead, keepalive: true }).catch(function () {}); } catch (e) {}
   }
   // The scheme and country code are fixed here; nothing from the link can change them.
   var target = 'sms:+1' + number + '&body=' + encodeURIComponent(body);
