@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-ot//Saadnn1F8CSnLKTdXUGDeTIT1xS9IBMyLuBqxQI='; style-src 'unsafe-inline'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>Open Messages</title>
+<style>
+  body { font: 18px/1.5 -apple-system, system-ui, sans-serif; margin: 0; padding: 32px 16px; text-align: center; background: #f5f5f7; color: #1d1d1f; }
+  a#open { display: block; max-width: 420px; margin: 24px auto; padding: 18px; border-radius: 14px; background: #0a84ff; color: #fff; font-size: 20px; font-weight: 600; text-decoration: none; }
+  p { max-width: 420px; margin: 12px auto; }
+  @media (prefers-color-scheme: dark) { body { background: #000; color: #f5f5f7; } }
+</style>
+</head>
+<body>
+<p id="status">Opening Messages…</p>
+<a id="open" hidden>Open Messages</a>
+<script>
+(function () {
+  var status = document.getElementById('status');
+  var button = document.getElementById('open');
+  var params = new URLSearchParams(location.hash.slice(1));
+  var number = params.get('n') || '';
+  var body = (params.get('b') || '').slice(0, 600);
+  // Clear the number and message from the address bar and history.
+  history.replaceState(null, '', location.pathname);
+  if (!/^[2-9]\d{2}[2-9]\d{6}$/.test(number) || !body) {
+    status.textContent = 'This link is not valid.';
+    return;
+  }
+  // The scheme and country code are fixed here; nothing from the link can change them.
+  var target = 'sms:+1' + number + '&body=' + encodeURIComponent(body);
+  button.href = target;
+  button.hidden = false;
+  status.textContent = 'Tap the button if Messages does not open.';
+  location.href = target;
+})();
+</script>
+</body>
+</html>
